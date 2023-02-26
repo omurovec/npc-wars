@@ -7,3 +7,6 @@ edition = "2021"
 
 [dependencies]
 actix-web = "4"
+ezkl = { git = "https://github.com/zkonduit/ezkl" }
+halo2_proofs = { git = "https://github.com/privacy-scaling-explorations/halo2", tag = "v2023_02_02"}
+halo2curves = { git = "https://github.com/privacy-scaling-explorations/halo2curves", tag = "0.3.1" }
