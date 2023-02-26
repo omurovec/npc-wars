@@ -1,0 +1,3 @@
+[submodule "ezkl"]
+	path = ezkl
+	url = https://github.com/zkonduit/ezkl
