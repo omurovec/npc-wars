@@ -1,0 +1,15 @@
+@font-face {
+  font-family: "8 Bit";
+  src: url("./fonts/8bit.ttf");
+}
+
+* {
+  font-family: "8 Bit", sans-serif;
+}
+
+body {
+  background: #131313;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
