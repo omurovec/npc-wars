@@ -1,23 +1,9 @@
 import { useCallback } from "react";
-import styled from "styled-components";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
 
-const Button = styled.button<{ alt: boolean }>`
-  background-color: ${({ alt }) => (alt ? "#00000000" : "#2cf8e9")};
-  border: ${({ alt }) => (alt ? "1px solid #2cf8e9" : "none")};
-  color: ${({ alt }) => (alt ? "#2cf8e9" : "black")};
-  height: 3rem;
-  padding: 0.5rem 1rem;
-  font-size: 1.2rem;
-  font-weight: 600;
-  cursor: pointer;
-  margin-left: auto;
-
-  &:disabled {
-    opacity: 0.25;
-  }
-`;
+import { Button } from "./Button";
+import { H2 } from "./Text";
 
 function WalletButton() {
   const { address, isConnected } = useAccount();
@@ -33,9 +19,15 @@ function WalletButton() {
 
   return (
     <Button alt={isConnected} onClick={handleClick}>
-      {isConnected
-        ? `${address?.slice(0, 6)}...${address?.substring(address.length - 4)}`
-        : "Connect Wallet"}
+      {isConnected ? (
+        <H2>
+          {`${address?.slice(0, 6)}...${address?.substring(
+            address.length - 4
+          )}`}
+        </H2>
+      ) : (
+        "Connect Wallet"
+      )}
     </Button>
   );
 }

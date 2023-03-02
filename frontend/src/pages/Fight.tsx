@@ -2,6 +2,7 @@ import { parseEther } from "ethers/lib/utils.js";
 import styled from "styled-components";
 import ChallengeCard from "../components/ChallengeCard";
 import WalletButton from "../components/WalletButton";
+import { Button } from "../components/Button";
 
 const Wrapper = styled.div`
   display: flex;
@@ -10,27 +11,17 @@ const Wrapper = styled.div`
   height: 100%;
 `;
 
+const CreateButton = styled(Button)`
+  margin-left: 0;
+  margin-right: auto;
+`;
+
 const Header = styled.header`
   padding: 1rem 2rem;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-`;
-
-const Button = styled.button`
-  background-color: #2cf8e9;
-  border: none;
-  height: 3rem;
-  padding: 0.5rem 1rem;
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #000;
-  cursor: pointer;
-
-  &:disabled {
-    opacity: 0.25;
-  }
 `;
 
 const MainContainer = styled.div`
@@ -76,7 +67,7 @@ export default function Fight() {
   return (
     <Wrapper>
       <Header>
-        <Button>+ create</Button>
+        <CreateButton>+ create</CreateButton>
         <WalletButton></WalletButton>
       </Header>
       <MainContainer>

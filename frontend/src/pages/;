@@ -5,7 +5,6 @@ import { TextInput, FileInputButton } from "../components/Input";
 import npcSrc from "../assets/npc.png";
 import TextBox from "../components/TextBox";
 import WalletButton from "../components/WalletButton";
-import { Button } from "../components/Button";
 
 const Wrapper = styled.div`
   flex: 1;
@@ -72,10 +71,22 @@ const NpcImg = styled.img`
   transform: scale(1.1);
   z-index: 2;
   animation: ${phase} 2s ease-in-out infinite;
+  box-shadow: 0 0 0 0.5rem #fff, 0 0 0 0.75rem #000;
 `;
 
-const DeployButton = styled(Button)`
-  width: 100%;
+const AltButton = styled.button`
+  background-color: #2cf8e9;
+  border: none;
+  height: 3rem;
+  padding: 0.5rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #000;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.25;
+  }
 `;
 
 function Home() {
@@ -93,7 +104,7 @@ function Home() {
             ñalsmdañsldañ shdcsomsf Take over the world someday yes we will yes
             i dont have enough money for that brother
           </TextBox>
-          <DeployButton disabled>Deploy</DeployButton>
+          <AltButton disabled>Deploy</AltButton>
         </StatsBar>
         <NpcImg src={npcSrc} alt="npc_img" />
         <StatsBar>
