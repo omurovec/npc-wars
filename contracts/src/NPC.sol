@@ -2,18 +2,21 @@
 pragma solidity ^0.8.13;
 
 contract NPC {
-  address owner;
-  uint    size;
-  uint    created;
-  string  arch;
-  string  image;
+  address public addr;
+  string  public name;
+  string  public arch;
+  string  public image;
+  uint    public size;
+  uint    public created;
 
   constructor(
-    uint _size,
+    uint   _size,
+    string memory _name, 
     string memory _arch,
     string memory _image
   ) {
-    owner   = msg.sender;
+    addr    = msg.sender;
+    name    = _name;
     size    = _size;
     created = block.timestamp;
     arch    = _arch;
