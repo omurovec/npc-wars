@@ -1,9 +1,10 @@
 import styled from "styled-components";
 
-import { H1, H2 } from "../components/Text";
+import { H1 } from "../components/Text";
 import { TextInput, FileInputButton } from "../components/Input";
 import npcSrc from "../assets/npc.png";
 import TextBox from "../components/TextBox";
+import WalletButton from "../components/WalletButton";
 
 const Wrapper = styled.div`
   flex: 1;
@@ -22,16 +23,6 @@ const Header = styled.div`
   flex-direction: row;
   align-items: space-between;
   justify-content: center;
-`;
-
-const ActionsContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: space-between;
-  justify-content: center;
-  height: 8rem;
-  padding: 1rem;
-  gap: 1.8rem;
 `;
 
 const StatsBar = styled.div`
@@ -66,21 +57,6 @@ const AltButton = styled.button`
   }
 `;
 
-const Button = styled.button`
-  background: none;
-  border: 1px solid #2cf8e9;
-  padding: 0.5rem;
-  flex: 1;
-  font-size: 0.8rem;
-  font-weight: 400;
-  line-height: 1.2;
-  margin: 0;
-  padding: 0;
-  text-shadow: #2cf8e9 0 1px, #2cf8e9 -1px 0, #2cf8e9 1px 0, #2cf8e9 0 -1px;
-  letter-spacing: 2.5px;
-  color: #ffffff;
-`;
-
 function Home() {
   return (
     <Wrapper>
@@ -100,14 +76,9 @@ function Home() {
         </StatsBar>
         <NpcImg src={npcSrc} alt="npc_img" />
         <StatsBar>
-          <H2>Connect Wallet</H2>
+          <WalletButton />
         </StatsBar>
       </Header>
-      <ActionsContainer>
-        <Button>NPC</Button>
-        <Button>fight</Button>
-        <Button>leaderboard</Button>
-      </ActionsContainer>
     </Wrapper>
   );
 }
