@@ -49,9 +49,10 @@ const ActionsContainer = styled.div`
   gap: 1.8rem;
 `;
 
-const Button = styled.button`
+const Button = styled.button<{ selected: boolean }>`
   background: none;
   border: 1px solid #2cf8e9;
+  box-shadow: ${({ selected }) => (selected ? "0 0 3px 2px #2cf8e9" : "none")};
   padding: 0.5rem;
   flex: 1;
   font-size: 0.8rem;
@@ -59,7 +60,10 @@ const Button = styled.button`
   line-height: 1.2;
   margin: 0;
   padding: 0;
-  text-shadow: #2cf8e9 0 1px, #2cf8e9 -1px 0, #2cf8e9 1px 0, #2cf8e9 0 -1px;
+  text-shadow: ${({ selected }) =>
+    selected
+      ? "#2cf8e9 0 1px, #2cf8e9 -1px 0, #2cf8e9 1px 0, #2cf8e9 0 -1px"
+      : "none"};
   letter-spacing: 2.5px;
   color: #ffffff;
   cursor: pointer;
@@ -87,9 +91,15 @@ function App() {
         })()}
       </WagmiConfig>
       <ActionsContainer>
-        <Button onClick={() => setPageIndex(0)}>NPC</Button>
-        <Button onClick={() => setPageIndex(1)}>Fight</Button>
-        <Button onClick={() => setPageIndex(2)}>Leaderboard</Button>
+        <Button onClick={() => setPageIndex(0)} selected={pageIndex === 0}>
+          NPC
+        </Button>
+        <Button onClick={() => setPageIndex(1)} selected={pageIndex === 1}>
+          Fight
+        </Button>
+        <Button onClick={() => setPageIndex(2)} selected={pageIndex === 2}>
+          Leaderboard
+        </Button>
       </ActionsContainer>
     </Wrapper>
   );
