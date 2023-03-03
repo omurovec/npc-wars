@@ -1,9 +1,8 @@
 import styled from "styled-components";
+import { BlurContainer2 } from "./Container";
 
-const Container = styled.div`
-  min-height: 4rem;
-  border: 1px solid #2cf8e9;
-  padding: 0.5rem;
+const Container = styled(BlurContainer2)`
+  padding: 0.5rem 1rem;
 `;
 
 const Text = styled.p`

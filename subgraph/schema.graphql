@@ -1,0 +1,25 @@
+type Competition @entity {
+  id: ID!
+  address: Bytes!
+  name: String!
+  maxParticipants: Int!
+  minStake: Int!
+  participants: [Npc!]!
+  answerSubmitted: Boolean!
+  winners: [Npc!]!
+}
+
+type Npc @entity {
+  id: ID!
+  address: Bytes!
+  name: String!
+  size: Int!
+  arch: String!
+  image: String!
+  owner: Bytes!
+  competitions: [Competition!]!
+  numWins: Int!
+  wins: [Competition!]!
+  numLosses: Int!
+  losses: [Competition!]!
+}
