@@ -13,6 +13,7 @@ const K: u32 = 17;
 
 use std::process::Command;
 use std::process::Output;
+use std::fs;
 
 #[get("/")]
 async fn hello() -> impl Responder {
@@ -31,7 +32,7 @@ struct UploadForm {
     #[multipart(rename = "file")]
     files: Vec<TempFile>,
 }
-/*
+
 #[post("/getVerifierBytecode")]
 async fn get_verifier_bytecode(
     MultipartForm(form): MultipartForm<UploadForm>,
@@ -40,25 +41,17 @@ async fn get_verifier_bytecode(
     data: String,
 ) -> Result<impl Responder, Error> {
     for f in form.files {
-        let path = format!("./tmp/model.onnx");
+        let path = format!("./network.onnx");
         log::info!("saving to {path}");
         f.file.persist(path).unwrap();
     }
-    
-    let params = gen_srs::<KZGCommitmentScheme<Bn256>>(K);
 
-    let output = Command::new("../../ezkl/target/release/ezkl")
-                     .arg("file.txt")
-                     .output()
-                     .expect("failed to execute process");
+    let output = generate_bytecode();
 
-
-    //println!("params {:?}", params);
-
-    HttpResponse::Ok().body("success")
+    Ok(HttpResponse::Ok().body(output))
 }
-*/
-fn run_cmd () {
+
+fn generate_bytecode () -> String {
 
     let output1: Output = Command::new("../../ezkl/target/release/ezkl")
         .arg("-K=17")
@@ -112,6 +105,22 @@ fn run_cmd () {
     println!("status: {}", output3.status);
     println!("stdout: {}", String::from_utf8_lossy(&output3.stdout));
     println!("stderr: {}", String::from_utf8_lossy(&output3.stderr));
+
+    let contents = fs::read_to_string("./1l_relu.code")
+        .expect("Should have been able to read the file");
+
+    let model_size = std::fs::metadata("./network.onnx").unwrap().len();
+
+    let file_len_str = model_size.to_string();
+
+    let repl_str = format!("\"onnx_length\":{} \"code\"", &file_len_str);
+
+    let result = str::replace(&contents, "\"code\"", &repl_str);
+
+    println!("RES {}", result);
+
+    result
+
 }
 
 async fn manual_hello() -> impl Responder {
@@ -120,7 +129,9 @@ async fn manual_hello() -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    run_cmd();
+
+    fs::remove_file("network.onnx").ok();
+    //generate_bytecode();
 
     log::info!("creating temporary upload directory");
     std::fs::create_dir_all("./tmp")?;
@@ -129,6 +140,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .service(hello)
             .service(echo)
+            .service(get_verifier_bytecode)
             .route("/hey", web::get().to(manual_hello))
     })
     .bind(("127.0.0.1", 8080))?
