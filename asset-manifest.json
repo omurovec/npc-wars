@@ -1,17 +1,17 @@
 {
   "files": {
     "main.css": "/npc-wars/static/css/main.6fd63386.css",
-    "main.js": "/npc-wars/static/js/main.bb43f437.js",
+    "main.js": "/npc-wars/static/js/main.f66dd21b.js",
     "static/js/787.cda612ba.chunk.js": "/npc-wars/static/js/787.cda612ba.chunk.js",
-    "static/media/npc.png": "/npc-wars/static/media/npc.e63b681274b65172b45d.png",
+    "static/media/npc.png": "/npc-wars/static/media/npc.0899d17d3bdda2b97b6b.png",
     "static/media/8bit.ttf": "/npc-wars/static/media/8bit.cfef1a6abe0816e09907.ttf",
     "index.html": "/npc-wars/index.html",
     "main.6fd63386.css.map": "/npc-wars/static/css/main.6fd63386.css.map",
-    "main.bb43f437.js.map": "/npc-wars/static/js/main.bb43f437.js.map",
+    "main.f66dd21b.js.map": "/npc-wars/static/js/main.f66dd21b.js.map",
     "787.cda612ba.chunk.js.map": "/npc-wars/static/js/787.cda612ba.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.6fd63386.css",
-    "static/js/main.bb43f437.js"
+    "static/js/main.f66dd21b.js"
   ]
 }
