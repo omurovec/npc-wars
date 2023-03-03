@@ -4,9 +4,9 @@ schema:
 dataSources:
   - kind: ethereum
     name: CompetitionFactory
-    network: localhost
+    network: mainnet
     source:
-      address: "0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0"
+      address: "0x5fbdb2315678afecb367f032d93f642f64180aa3" # CompetitionFactory on localhost
       abi: CompetitionFactory
     mapping:
       kind: ethereum/events
@@ -17,7 +17,52 @@ dataSources:
       abis:
         - name: CompetitionFactory
           file: ../contracts/out/CompetitionFactory.sol/CompetitionFactory.json
-      callHandler:
-        - function: CompetitionCreated(address,address)
+      callHandlers:
+        - function: create(address,string,uint256,uint256)
           handler: handleCompetitionCreated
       file: ./src/competitions.ts
+  - kind: ethereum
+    name: NPCFactory
+    network: mainnet
+    source:
+      address: "0x5fbdb2315678afecb367f032d93f642f64180aa3" # CompetitionFactory on localhost
+      abi: NPCFactory
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Npc
+      abis:
+        - name: NPCFactory
+          file: ../contracts/out/NPCFactory.sol/NPCFactory.json
+      callHandlers:
+        - function: create(uint256,string,string,string)
+          handler: handleNpcCreated
+      file: ./src/npcs.ts
+templates:
+  - name: Competition
+    kind: ethereum/contract
+    network: mainnet
+    source:
+      abi: Competition
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      file: ./src/competitions.ts
+      entities:
+        - Competition
+        - Npc
+      abis:
+        - name: Competition
+          file: ../contracts/out/Competition.sol/Competition.json
+      callHandlers:
+        - function: join(address)
+          handler: handleJoin
+        - function: verify(address,uint256[],bytes,string)
+          handler: handleVerify
+        - function: claim(uint256)
+          handler: handleClaim
+        - function: setAnswer(string)
+          handler: handleSetAnswer
