@@ -1,49 +1,28 @@
-use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder, Error};
 use actix_multipart::{
     form::{
         tempfile::{TempFile},
         MultipartForm,
     },
 };
-use log::{info, trace};
-use ezkl::graph::{ ModelCircuit};
-use ezkl::pfsys::{gen_srs, prepare_model_circuit_and_public_input, load_params_kzg, create_keys};
-use ezkl::pfsys::evm::aggregation::{
-    PoseidonTranscript,
-};
-use ezkl::pfsys::{Snark};
-use ezkl::pfsys::{
-    create_proof_circuit, prepare_data,
-    save_vk,
-};
-use ezkl::commands::{StrategyType, TranscriptType};
-use halo2_proofs::plonk::{Circuit, ProvingKey};
-use halo2_proofs::poly::kzg::strategy::AccumulatorStrategy;
+use ezkl::pfsys::{gen_srs};
 use halo2_proofs::poly::kzg::commitment::KZGCommitmentScheme;
-use halo2_proofs::poly::kzg::multiopen::ProverGWC;
-use halo2_proofs::poly::kzg::{
-    commitment::ParamsKZG, multiopen::VerifierGWC, strategy::SingleStrategy as KZGSingleStrategy,
-};
-use halo2_proofs::poly::VerificationStrategy;
-use halo2_proofs::transcript::{Blake2bRead, Blake2bWrite, Challenge255};
-use halo2curves::bn256::{Bn256, Fr, G1Affine};
-use snark_verifier::loader::native::NativeLoader;
-use snark_verifier::system::halo2::transcript::evm::EvmTranscript;
-use std::error::Error;
-use std::time::Instant;
-
+use halo2curves::bn256::{Bn256};
 
 const K: u32 = 17;
 
+use std::process::Command;
+use std::process::Output;
+
 #[get("/")]
 async fn hello() -> impl Responder {
-    generate_proof();
     HttpResponse::Ok().body("Hello world!")
 }
 
 
 #[post("/getProof")]
 async fn echo(req_body: String) -> impl Responder {
+    //println!("params {:?}", params);
     HttpResponse::Ok().body(req_body)
 }
 
@@ -52,7 +31,7 @@ struct UploadForm {
     #[multipart(rename = "file")]
     files: Vec<TempFile>,
 }
-
+/*
 #[post("/getVerifierBytecode")]
 async fn get_verifier_bytecode(
     MultipartForm(form): MultipartForm<UploadForm>,
@@ -67,9 +46,72 @@ async fn get_verifier_bytecode(
     }
     
     let params = gen_srs::<KZGCommitmentScheme<Bn256>>(K);
-    println!("params {:?}", params);
 
-    Ok(HttpResponse::Ok().body("success"))
+    let output = Command::new("../../ezkl/target/release/ezkl")
+                     .arg("file.txt")
+                     .output()
+                     .expect("failed to execute process");
+
+
+    //println!("params {:?}", params);
+
+    HttpResponse::Ok().body("success")
+}
+*/
+fn run_cmd () {
+
+    let output1: Output = Command::new("../../ezkl/target/release/ezkl")
+        .arg("-K=17")
+        .arg("gen-srs")
+        .arg("--pfsys=kzg")
+        .arg("--params-path=kzg.params")
+        .output()
+        .expect("failed to execute process");
+
+        println!("status: {}", output1.status);
+        println!("stdout: {}", String::from_utf8_lossy(&output1.stdout));
+        println!("stderr: {}", String::from_utf8_lossy(&output1.stderr));
+
+    let output2 = Command::new("../../ezkl/target/release/ezkl")
+                     .arg("--bits=16")
+                     .arg("-K=17")
+                     .arg("prove")
+                     .arg("-D")
+                     .arg("./input.json")
+                     .arg("-M")
+                     .arg("./network.onnx")
+                     .arg("--proof-path")
+                     .arg("./1l_relu.pf")
+                     .arg("--vk-path")
+                     .arg("./1l_relu.vk")
+                     .arg("--params-path=kzg.params")
+                     .output()
+                     .expect("failed to execute process");
+    println!("status: {}", output2.status);
+    println!("stdout: {}", String::from_utf8_lossy(&output2.stdout));
+    println!("stderr: {}", String::from_utf8_lossy(&output2.stderr));
+
+    let output3 = Command::new("../../ezkl/target/release/ezkl")
+                     .arg("-K=17")
+                     .arg("--bits=16")
+                     .arg("create-evm-verifier")
+                     .arg("-D")
+                     .arg("./input.json")
+                     .arg("-M")
+                     .arg("./network.onnx")
+                     //.arg("--pfsys=kzg")
+                     .arg("--deployment-code-path")
+                     .arg("./1l_relu.code")
+                     .arg("--params-path=kzg.params")
+                     .arg("--vk-path")
+                     .arg("./1l_relu.vk")
+                     .arg("--sol-code-path")
+                     .arg("./1l_relu.sol")
+                     .output()
+                     .expect("failed to execute process");
+    println!("status: {}", output3.status);
+    println!("stdout: {}", String::from_utf8_lossy(&output3.stdout));
+    println!("stderr: {}", String::from_utf8_lossy(&output3.stderr));
 }
 
 async fn manual_hello() -> impl Responder {
@@ -78,6 +120,7 @@ async fn manual_hello() -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    run_cmd();
 
     log::info!("creating temporary upload directory");
     std::fs::create_dir_all("./tmp")?;
@@ -91,112 +134,4 @@ async fn main() -> std::io::Result<()> {
     .bind(("127.0.0.1", 8080))?
     .run()
     .await
-}
-
-
-fn generate_proof (
-    data,
-    vk_path,
-    proof_path,
-    params_path,
-    pfsys,
-    transcript,
-    strategy,
-) {
-    let data = prepare_data(data)?;
-    let (circuit, public_inputs) =
-        prepare_model_circuit_and_public_input(&data, &cli)?;
-    let mut params: ParamsKZG<Bn256> = load_params_kzg(params_path.to_path_buf())?;
-    params.downsize(cli.args.logrows);
-    let pk = create_keys::<KZGCommitmentScheme<Bn256>, Fr, ModelCircuit<Fr>>(
-        &circuit, &params,
-    )
-    .map_err(Box::<dyn Error>::from)?;
-    trace!("params computed");
-
-    let now = Instant::now();
-    // creates and verifies the proof
-    let snark = match strategy {
-        StrategyType::Single => {
-            let strategy = KZGSingleStrategy::new(&params);
-            create_proof_circuit_kzg(
-                circuit,
-                &params,
-                public_inputs,
-                &pk,
-                transcript,
-                strategy,
-            )?
-        }
-        StrategyType::Accum => {
-            let strategy = AccumulatorStrategy::new(&params);
-            create_proof_circuit_kzg(
-                circuit,
-                &params,
-                public_inputs,
-                &pk,
-                transcript,
-                strategy,
-            )?
-        }
-    };
-
-    info!("proof took {}", now.elapsed().as_secs());
-
-    snark.save(proof_path)?;
-    save_vk::<KZGCommitmentScheme<Bn256>>(vk_path, pk.get_vk())?;
-}
-
-
-/// helper function
-fn create_proof_circuit_kzg<
-    'params,
-    C: Circuit<Fr>,
-    Strategy: VerificationStrategy<'params, KZGCommitmentScheme<Bn256>, VerifierGWC<'params, Bn256>>,
->(
-    circuit: C,
-    params: &'params ParamsKZG<Bn256>,
-    public_inputs: Vec<Vec<Fr>>,
-    pk: &ProvingKey<G1Affine>,
-    transcript: TranscriptType,
-    strategy: Strategy,
-) -> Result<Snark<Fr, G1Affine>, Box<dyn Error>> {
-    match transcript {
-        TranscriptType::EVM => create_proof_circuit::<
-            KZGCommitmentScheme<_>,
-            Fr,
-            _,
-            ProverGWC<_>,
-            VerifierGWC<_>,
-            _,
-            _,
-            EvmTranscript<G1Affine, _, _, _>,
-            EvmTranscript<G1Affine, _, _, _>,
-        >(circuit, public_inputs, params, pk, strategy)
-        .map_err(Box::<dyn Error>::from),
-        TranscriptType::Poseidon => create_proof_circuit::<
-            KZGCommitmentScheme<_>,
-            Fr,
-            _,
-            ProverGWC<_>,
-            VerifierGWC<_>,
-            _,
-            _,
-            PoseidonTranscript<NativeLoader, _>,
-            PoseidonTranscript<NativeLoader, _>,
-        >(circuit, public_inputs, params, pk, strategy)
-        .map_err(Box::<dyn Error>::from),
-        TranscriptType::Blake => create_proof_circuit::<
-            KZGCommitmentScheme<_>,
-            Fr,
-            _,
-            ProverGWC<_>,
-            VerifierGWC<'_, Bn256>,
-            _,
-            Challenge255<_>,
-            Blake2bWrite<_, _, _>,
-            Blake2bRead<_, _, _>,
-        >(circuit, public_inputs, params, pk, strategy)
-        .map_err(Box::<dyn Error>::from),
-    }
 }
