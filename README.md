@@ -20,14 +20,22 @@ cd api
 cargo run
 ```
 
-4. Deploy the subgraph
+4. Startup a local graph node
 
 ```sh
 cd subgraph
 docker-compose up
 ```
 
-5. Start front-end
+5. Deploy the subgraph
+
+```sh
+cd subgraph
+yarn create-local
+yarn deploy-local
+```
+
+6. Start front-end
 
 ```sh
 cd frontend

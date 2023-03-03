@@ -7,69 +7,62 @@ import {Verifier} from "./Verifier.sol";
 import {NPC} from "./NPC.sol";
 
 contract Competition is Owned {
-  string public name;
-  uint public minStake;
-  uint public maxNPCs;
-  NPC[] public npcs;
-  string public answer;
-  bool public answerSubmitted;
+    string public name;
+    uint256 public minStake;
+    uint256 public maxNPCs;
+    NPC[] public npcs;
+    string public answer;
+    bool public answerSubmitted;
 
-  mapping(uint => uint) public id2score;
+    mapping(uint256 => uint256) public id2score;
 
-  modifier onlyNpcOwner(uint id) { require(npcs[id].addr() == msg.sender); _; }
+    modifier onlyNpcOwner(uint256 id) {
+        require(npcs[id].addr() == msg.sender);
+        _;
+    }
 
-  constructor(
-      address _owner,
-      string memory _name,
-      uint _maxNPCs, 
-      uint _minStake
-  ) Owned(_owner) {
-      name     = _name;
-      maxNPCs  = _maxNPCs;
-      minStake = _minStake;
-  }
+    constructor(address _owner, string memory _name, uint256 _maxNPCs, uint256 _minStake) Owned(_owner) {
+        name = _name;
+        maxNPCs = _maxNPCs;
+        minStake = _minStake;
+    }
 
-  function join(NPC npc) public payable returns (uint) {
-    require(msg.value >= minStake);
-    require(!answerSubmitted);
-    uint id = npcs.length;
-    require(id < maxNPCs);
-    npcs.push(npc);
-    return id;
-  }
+    function join(NPC npc) public payable returns (uint256) {
+        require(msg.value >= minStake);
+        require(!answerSubmitted);
+        uint256 id = npcs.length;
+        require(id < maxNPCs);
+        npcs.push(npc);
+        return id;
+    }
 
-  function verify(
-      uint id,
-      uint[] memory pubInputs,
-      bytes  memory proof,
-      string memory prediction
-  ) public 
-      onlyOwner 
+    function verify(uint256 id, uint256[] memory pubInputs, bytes memory proof, string memory prediction)
+        public
+        onlyOwner
     {
-      bool isVerfified = npcs[id].verify(pubInputs, proof);
-      bool isCorrectAnswer = keccak256(abi.encodePacked(prediction)) == 
-                             keccak256(abi.encodePacked(answer));
-      if (isVerfified && isCorrectAnswer) { id2score[id] += 1; }
-  }
-
-  function claim(uint id) public onlyNpcOwner(id) {
-    uint numberOfWinners = 0;
-    for (uint i = 0; i < npcs.length; ) {
-      if (_isWinner(i)) { numberOfWinners += 1; }
-      ++i;
+        bool isVerfified = npcs[id].verify(pubInputs, proof);
+        bool isCorrectAnswer = keccak256(abi.encodePacked(prediction)) == keccak256(abi.encodePacked(answer));
+        if (isVerfified && isCorrectAnswer) id2score[id] += 1;
     }
-    if (numberOfWinners > 0 && npcs[id].addr() == msg.sender) {
-      payable(address(msg.sender)).transfer(address(this).balance / numberOfWinners);
+
+    function claim(uint256 id) public onlyNpcOwner(id) {
+        uint256 numberOfWinners = 0;
+        for (uint256 i = 0; i < npcs.length;) {
+            if (_isWinner(i)) numberOfWinners += 1;
+            ++i;
+        }
+        if (numberOfWinners > 0 && npcs[id].addr() == msg.sender) {
+            payable(address(msg.sender)).transfer(address(this).balance / numberOfWinners);
+        }
     }
-  }
 
-  function _isWinner(uint id) internal view returns (bool) {
-    return id2score[id] == 1;
-  }
+    function _isWinner(uint256 id) internal view returns (bool) {
+        return id2score[id] == 1;
+    }
 
-  function setAnswer(string memory _answer) public onlyOwner {
-    require(!answerSubmitted);
-    answerSubmitted = true;
-    answer          = _answer;
-  }
+    function setAnswer(string memory _answer) public onlyOwner {
+        require(!answerSubmitted);
+        answerSubmitted = true;
+        answer = _answer;
+    }
 }
