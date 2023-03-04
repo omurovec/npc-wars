@@ -4,10 +4,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: CompetitionFactory
-    network: localhost
+    network: goerli
     source:
-      address: "0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0"
+      address: "0x682F92C28Bc8b36e97717e1E0b1C8fc15809906d" # CompetitionFactory on goerli
       abi: CompetitionFactory
+      startBlock: 8592510
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -17,7 +18,53 @@ dataSources:
       abis:
         - name: CompetitionFactory
           file: ../contracts/out/CompetitionFactory.sol/CompetitionFactory.json
-      callHandler:
-        - function: CompetitionCreated(address,address)
+      callHandlers:
+        - function: create(address,string,uint256,uint256)
           handler: handleCompetitionCreated
       file: ./src/competitions.ts
+  - kind: ethereum
+    name: NPCFactory
+    network: goerli
+    source:
+      address: "0xDa88f0c284e6E2E93d55B985468aC77Bfff69017" # NPCFactory on goerli
+      abi: NPCFactory
+      startBlock: 8592510
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Npc
+      abis:
+        - name: NPCFactory
+          file: ../contracts/out/NPCFactory.sol/NPCFactory.json
+      callHandlers:
+        - function: create(uint256,string,string,string,address)
+          handler: handleCreateCall
+      file: ./src/npcs.ts
+templates:
+  - name: Competition
+    kind: ethereum/contract
+    network: goerli
+    source:
+      abi: Competition
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      file: ./src/competitions.ts
+      entities:
+        - Competition
+        - Npc
+      abis:
+        - name: Competition
+          file: ../contracts/out/Competition.sol/Competition.json
+      callHandlers:
+        - function: join(address)
+          handler: handleJoin
+        - function: verify(address,uint256[],bytes,string)
+          handler: handleVerify
+        - function: claim(uint256)
+          handler: handleClaim
+        - function: setAnswer(string)
+          handler: handleSetAnswer

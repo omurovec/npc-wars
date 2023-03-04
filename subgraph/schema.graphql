@@ -2,24 +2,29 @@ type Competition @entity {
   id: ID!
   address: Bytes!
   name: String!
-  maxParticipants: Int!
-  minStake: Int!
-  participants: [Npc!]!
-  answerSubmitted: Boolean!
-  winners: [Npc!]!
+  maxParticipants: BigInt!
+  minStake: BigInt!
+  joins: [Join!]! @derivedFrom(field: "competition")
+  answerSubmitted: Boolean
+}
+
+type Join @entity {
+  id: ID!
+  competition: Competition!
+  npc: Npc!
+  pendingAnswer: Boolean
+  winner: Boolean
 }
 
 type Npc @entity {
-  id: ID!
-  address: Bytes!
+  id: ID! # address of the NPC
+  verifier: Bytes!
   name: String!
-  size: Int!
+  size: BigInt!
   arch: String!
   image: String!
   owner: Bytes!
-  competitions: [Competition!]!
+  joins: [Join!]! @derivedFrom(field: "npc")
   numWins: Int!
-  wins: [Competition!]!
   numLosses: Int!
-  losses: [Competition!]!
 }
