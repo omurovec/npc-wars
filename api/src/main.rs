@@ -114,7 +114,7 @@ fn generate_bytecode () -> String {
 
     let file_len_str = model_size.to_string();
 
-    let repl_str = format!("\"onnx_length\":{} \"code\"", &file_len_str);
+    let repl_str = format!("\"onnx_length\":{}, \"code\"", &file_len_str);
 
     let result = str::replace(&contents, "\"code\"", &repl_str);
 
