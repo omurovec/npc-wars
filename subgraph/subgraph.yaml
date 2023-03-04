@@ -4,10 +4,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: CompetitionFactory
-    network: mainnet
+    network: goerli
     source:
-      address: "0x5fbdb2315678afecb367f032d93f642f64180aa3" # CompetitionFactory on localhost
+      address: "0x682F92C28Bc8b36e97717e1E0b1C8fc15809906d" # CompetitionFactory on goerli
       abi: CompetitionFactory
+      startBlock: 8592510
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -23,10 +24,11 @@ dataSources:
       file: ./src/competitions.ts
   - kind: ethereum
     name: NPCFactory
-    network: mainnet
+    network: goerli
     source:
-      address: "0x5fbdb2315678afecb367f032d93f642f64180aa3" # CompetitionFactory on localhost
+      address: "0xDa88f0c284e6E2E93d55B985468aC77Bfff69017" # NPCFactory on goerli
       abi: NPCFactory
+      startBlock: 8592510
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -37,13 +39,13 @@ dataSources:
         - name: NPCFactory
           file: ../contracts/out/NPCFactory.sol/NPCFactory.json
       callHandlers:
-        - function: create(uint256,string,string,string)
-          handler: handleNpcCreated
+        - function: create(uint256,string,string,string,address)
+          handler: handleCreateCall
       file: ./src/npcs.ts
 templates:
   - name: Competition
     kind: ethereum/contract
-    network: mainnet
+    network: goerli
     source:
       abi: Competition
     mapping:

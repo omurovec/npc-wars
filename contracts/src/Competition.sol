@@ -11,10 +11,11 @@ contract Competition is Owned {
   uint public minStake;
   uint public maxNPCs;
   NPC[] public npcs;
-  string public answer;
+  uint public answer;
   bool public answerSubmitted;
 
-  mapping(uint => uint) public id2score;
+  mapping(address => NPC)  public addr2npc; // only used for graph indexing
+  mapping(uint    => uint) public id2score;
 
   modifier onlyNpcOwner(uint id) { require(npcs[id].addr() == msg.sender); _; }
 
@@ -35,21 +36,28 @@ contract Competition is Owned {
     uint id = npcs.length;
     require(id < maxNPCs);
     npcs.push(npc);
+    addr2npc[address(npc)] = npc;
     return id;
   }
 
   function verify(
       uint id,
       uint[] memory pubInputs,
-      bytes  memory proof,
-      string memory prediction
+      bytes  memory proof
   ) public 
       onlyOwner 
     {
       bool isVerfified = npcs[id].verify(pubInputs, proof);
-      bool isCorrectAnswer = keccak256(abi.encodePacked(prediction)) == 
-                             keccak256(abi.encodePacked(answer));
+      bool isCorrectAnswer = maxArgs(pubInputs) == answer;
       if (isVerfified && isCorrectAnswer) { id2score[id] += 1; }
+  }
+
+  function maxArgs(uint[] memory inputs) public pure returns (uint) {
+    uint max = 0;
+    for (uint i = 0; i < inputs.length; i++) {
+      if (inputs[i] > max) { max = inputs[i]; }
+    }
+    return max;
   }
 
   function claim(uint id) public onlyNpcOwner(id) {
@@ -69,7 +77,7 @@ contract Competition is Owned {
     return id2score[id] == 1;
   }
 
-  function setAnswer(string memory _answer) public onlyOwner {
+  function setAnswer(uint _answer) public onlyOwner {
     require(!answerSubmitted);
     answerSubmitted = true;
     answer          = _answer;

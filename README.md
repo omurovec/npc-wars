@@ -1,3 +1,39 @@
+# Deployments
+
+## Goerli
+
+```sh
+CompetitionFactory 0x682F92C28Bc8b36e97717e1E0b1C8fc15809906d
+Verifier     0xAB768e4Ad46acA4556D22b2A2f6F809Eb8c7De00
+NPCFactory   0xDa88f0c284e6E2E93d55B985468aC77Bfff69017
+Competition  0xDcda93e6Dea2aBbB7d61DBfa9B133f815A4dD684
+```
+
+## Base
+
+```sh
+CompetitionFactory 0x408f1814d4DbbC1c480333796878f4d0016A1281
+Verifier     0x030e50597af6044CAd2977D8FBfe08A4DA651d52
+NPCFactory   0x3645C5E610dBde403963E8064C025c7321D615A3
+Competition  0x5484FE57Bc1496756BD378d8df3C80Af538F9cA3
+```
+
+## Scroll
+
+```sh
+CompetitionFactory 0x0E54336875cf6DdBD851A1E585245983BedA348c
+Verifier     0xC82AD4aC9fF53ba73318663c9AAA70429bDDE21e
+NPCFactory   0xdA80A38DAd84c47a0400C836D7dd30849fb00407
+Competition  0x79A6BE02fBb96493e7B1fb308A5a10DD6a24C2d1
+```
+
+## Localhost
+
+```sh
+CompetitionFactor 0x5fbdb2315678afecb367f032d93f642f64180aa3
+NPCFactory 0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9
+```
+
 # Testing Locally
 
 1. Start a local chain
