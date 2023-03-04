@@ -1,11 +1,12 @@
 import styled, { keyframes } from "styled-components";
-
+import { useState } from "react";
 import { H1 } from "../components/Text";
 import { TextInput, FileInputButton } from "../components/Input";
 import npcSrc from "../assets/npc.png";
 import TextBox from "../components/TextBox";
 import WalletButton from "../components/WalletButton";
 import { Button } from "../components/Button";
+import axios from "axios";
 
 const Wrapper = styled.div`
   flex: 1;
@@ -78,7 +79,29 @@ const DeployButton = styled(Button)`
   width: 100%;
 `;
 
-function Home() {
+const Home = () =>  {
+  const [selectedFile, setSelectedFile] = useState<any>();
+	const [isFilePicked, setIsFilePicked] = useState(false);
+
+  function uploadFile(){
+    
+    var data = new FormData();
+    data.append("file", selectedFile);
+
+    axios.post("http://localhost:8080/getVerifierBytecode", data).then(function (response) {
+      console.log(response);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+
+  }
+
+  const changeHandler = (event: any) => {
+		setSelectedFile(event.target.files[0]);
+		setIsFilePicked(true);
+	};
+
   return (
     <Wrapper>
       <Header>
@@ -86,14 +109,14 @@ function Home() {
           <H1>Your NPC</H1>
           <TextInput placeholder="Name" />
           <TextInput placeholder="Architecture" />
-          <FileInputButton />
+          <FileInputButton onChange={changeHandler}/>
           <TextBox>
             it is very important to blabalablablabalbal ash ados fiewf sasidna
             asidnwoidaskdae sdhd swa vomvl hvosdom alsc,aiocjsndvjsl
             ñalsmdañsldañ shdcsomsf Take over the world someday yes we will yes
             i dont have enough money for that brother
           </TextBox>
-          <DeployButton disabled>Deploy</DeployButton>
+          <DeployButton onClick={uploadFile} disabled={!isFilePicked}>Deploy</DeployButton>
         </StatsBar>
         <NpcImg src={npcSrc} alt="npc_img" />
         <StatsBar>

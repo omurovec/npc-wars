@@ -14,6 +14,7 @@ const K: u32 = 17;
 use std::process::Command;
 use std::process::Output;
 use std::fs;
+use actix_cors::Cors;
 
 #[get("/")]
 async fn hello() -> impl Responder {
@@ -39,7 +40,7 @@ async fn get_verifier_bytecode(
     architecture: String,
     name: String,
     data: String,
-) -> Result<impl Responder, Error> {
+) -> impl Responder {
     for f in form.files {
         let path = format!("./network.onnx");
         log::info!("saving to {path}");
@@ -48,7 +49,7 @@ async fn get_verifier_bytecode(
 
     let output = generate_bytecode();
 
-    Ok(HttpResponse::Ok().body(output))
+    HttpResponse::Ok().body(output)
 }
 
 fn generate_bytecode () -> String {
@@ -133,11 +134,14 @@ async fn main() -> std::io::Result<()> {
     fs::remove_file("network.onnx").ok();
     //generate_bytecode();
 
-    log::info!("creating temporary upload directory");
-    std::fs::create_dir_all("./tmp")?;
+    //log::info!("creating temporary upload directory");
+    //std::fs::create_dir_all("./tmp")?;
+
+
 
     HttpServer::new(|| {
         App::new()
+            .wrap(Cors::permissive())
             .service(hello)
             .service(echo)
             .service(get_verifier_bytecode)
