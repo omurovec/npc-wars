@@ -1,0 +1,17 @@
+query npc($user: Bytes!) {
+  npcs(where: { owner: $user }) {
+    id
+    name
+    size
+    arch
+    image
+    numWins
+    numLosses
+    joins {
+      competition {
+        id
+      }
+      pendingAnswer
+    }
+  }
+}

@@ -1,8 +1,10 @@
 import { BigNumberish } from "ethers";
 import { formatEther } from "ethers/lib/utils.js";
 import styled from "styled-components";
+import { useAccount } from "wagmi";
 
 import { H1 } from "../components/Text";
+import { Competition } from "../graphql/generated";
 
 const CardContainer = styled.div`
   display: flex;
@@ -46,13 +48,22 @@ const Button = styled.button`
   padding-top: 0.5rem;
   margin-top: 1rem;
   cursor: pointer;
+
+  &:disabled {
+    color: #2cf8e933;
+  }
 `;
 
 interface Challenge {
-  challengeType: string;
-  description: string;
-  stake: BigNumberish;
-  participants: number;
+  name: string;
+  minStake: BigNumberish;
+  joins: {
+    id: string;
+    npc: {
+      id: string;
+      owner: string;
+    };
+  }[];
   maxParticipants: number;
 }
 
@@ -61,23 +72,20 @@ interface ChallengeProps {
 }
 
 export default function ChallengeCard({
-  challenge: {
-    challengeType,
-    description,
-    stake,
-    participants,
-    maxParticipants,
-  },
+  challenge: { name, minStake, joins, maxParticipants },
 }: ChallengeProps) {
+  const { address } = useAccount();
+
+  const isJoined = joins.some((join) => join.npc.owner === address);
+
   return (
     <CardContainer>
-      <Header>{challengeType}</Header>
-      <Description>{description}</Description>
-      <p>stake: {formatEther(stake)} Ξ</p>
+      <Header>{name}</Header>
+      <p>stake: {formatEther(minStake)} Ξ</p>
       <p>
-        participants: {participants}/{maxParticipants}
+        participants: {joins.length}/{maxParticipants}
       </p>
-      <Button>Sign up</Button>
+      <Button disabled={isJoined}>{isJoined ? "Joined" : "Join"}</Button>
     </CardContainer>
   );
 }

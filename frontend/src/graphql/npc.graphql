@@ -1,0 +1,17 @@
+query competition {
+  competitions {
+    id
+    address
+    name
+    maxParticipants
+    minStake
+    answerSubmitted
+    joins {
+      id
+      npc {
+        id
+        owner
+      }
+    }
+  }
+}
