@@ -4,6 +4,9 @@ import ChallengeCard from "../components/ChallengeCard";
 import WalletButton from "../components/WalletButton";
 import { Button } from "../components/Button";
 
+import { useCompetitionQuery } from "../graphql/generated";
+import { useEffect } from "react";
+
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -36,34 +39,9 @@ const MainContainer = styled.div`
   padding: 2rem;
 `;
 
-const challenges = [
-  {
-    id: "a",
-    challengeType: "MNIST",
-    description: "Train a model to recognize handwritten digits",
-    stake: parseEther("0.1"),
-    participants: 1,
-    maxParticipants: 3,
-  },
-  {
-    id: "b",
-    challengeType: "MNIST",
-    description: "Train a model to recognize handwritten digits",
-    stake: parseEther("0.1"),
-    participants: 1,
-    maxParticipants: 3,
-  },
-  {
-    id: "c",
-    challengeType: "MNIST",
-    description: "Train a model to recognize handwritten digits",
-    stake: parseEther("0.1"),
-    participants: 1,
-    maxParticipants: 3,
-  },
-];
-
 export default function Fight() {
+  const [{ data }] = useCompetitionQuery();
+
   return (
     <Wrapper>
       <Header>
@@ -71,7 +49,7 @@ export default function Fight() {
         <WalletButton></WalletButton>
       </Header>
       <MainContainer>
-        {challenges.map((challenge) => (
+        {data?.competitions.map((challenge) => (
           <ChallengeCard challenge={challenge} key={challenge.id} />
         ))}
       </MainContainer>

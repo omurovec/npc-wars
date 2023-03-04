@@ -1,0 +1,14 @@
+overwrite: true
+schema: ${REACT_APP_GQL_ENDPOINT}
+documents: "src/graphql/*.graphql"
+generates:
+  src/graphql/generated.ts:
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-urql
+    config:
+      withHooks: true
+hooks:
+  afterAllFileWrite:
+    - prettier --write
