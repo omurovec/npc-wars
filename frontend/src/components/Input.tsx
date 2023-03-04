@@ -112,10 +112,10 @@ export const FileInput = styled.input`
   opacity: 0;
 `;
 
-export function FileInputButton() {
+export function FileInputButton({ ...props }) {
   return (
     <FileInputWrapper>
-      <FileInput type="file" accept=".onnx" placeholder="Upload Image" />
+      <FileInput type="file" accept=".onnx" placeholder="Upload Image" {...props}/>
       <img src={uploadImg} alt="upload" /> Upload Model
     </FileInputWrapper>
   );
