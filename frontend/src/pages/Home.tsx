@@ -1,5 +1,5 @@
 import styled, { keyframes } from "styled-components";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { H1 } from "../components/Text";
 import { TextInput, FileInputButton } from "../components/Input";
 import npcSrc from "../assets/npc.png";
@@ -90,7 +90,7 @@ const Home = () => {
   const [size, setSize] = useState<number>();
   const [loading, setLoading] = useState(false);
 
-  const { data: signer, isError, isLoading } = useSigner();
+  const { data: signer } = useSigner();
 
   function uploadFile() {
     var data = new FormData();
@@ -136,6 +136,10 @@ const Home = () => {
   const handleArchChange = useCallback((e: any) => {
     setArch(e.target.value);
   }, []);
+
+  useEffect(() => {
+    console.log(name, arch, size);
+  }, [name, arch, size]);
 
   return (
     <Wrapper>
