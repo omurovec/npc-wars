@@ -1,11 +1,9 @@
-import { parseEther } from "ethers/lib/utils.js";
 import styled from "styled-components";
 import ChallengeCard from "../components/ChallengeCard";
 import WalletButton from "../components/WalletButton";
 import { Button } from "../components/Button";
 
 import { useCompetitionQuery } from "../graphql/generated";
-import { useEffect } from "react";
 
 const Wrapper = styled.div`
   display: flex;

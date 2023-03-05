@@ -4,7 +4,6 @@ import styled from "styled-components";
 import { useAccount } from "wagmi";
 
 import { H1 } from "../components/Text";
-import { Competition } from "../graphql/generated";
 
 const CardContainer = styled.div`
   display: flex;
@@ -24,14 +23,6 @@ const Header = styled(H1)`
   color: #2cf8e9;
   text-shadow: none;
   margin: 3rem 0;
-`;
-
-const Description = styled.p`
-  font-size: 1rem;
-  color: #2cf8e9;
-  text-shadow: none;
-  margin: 0.5rem 0;
-  line-height: 1.5;
 `;
 
 const Button = styled.button`

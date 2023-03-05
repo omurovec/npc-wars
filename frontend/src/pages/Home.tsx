@@ -1,5 +1,5 @@
 import styled, { keyframes } from "styled-components";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { H1 } from "../components/Text";
 import { TextInput, FileInputButton } from "../components/Input";
 import npcSrc from "../assets/npc.png";
@@ -7,6 +7,9 @@ import TextBox from "../components/TextBox";
 import WalletButton from "../components/WalletButton";
 import { Button } from "../components/Button";
 import axios from "axios";
+import { useSigner } from "wagmi";
+import { Loader } from "../components/Loader";
+import { hexlify } from "ethers/lib/utils.js";
 
 const Wrapper = styled.div`
   flex: 1;
@@ -79,44 +82,82 @@ const DeployButton = styled(Button)`
   width: 100%;
 `;
 
-const Home = () =>  {
+const Home = () => {
   const [selectedFile, setSelectedFile] = useState<any>();
-	const [isFilePicked, setIsFilePicked] = useState(false);
+  const [isFilePicked, setIsFilePicked] = useState(false);
+  const [name, setName] = useState<string>();
+  const [arch, setArch] = useState<string>();
+  const [size, setSize] = useState<number>();
+  const [loading, setLoading] = useState(false);
 
-  function uploadFile(){
-    
+  const { data: signer } = useSigner();
+
+  function uploadFile() {
     var data = new FormData();
     data.append("file", selectedFile);
 
-    axios.post("http://localhost:8080/getVerifierBytecode", data).then(function (response) {
-      console.log(response);
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-
+    setLoading(true);
+    axios
+      .post(`${process.env.REACT_APP_API_ENDPOINT}/getVerifierBytecode`, data)
+      .then(function (response) {
+        setSize(response.data.onnx_length);
+        if (signer) {
+          console.log(hexlify(response.data.code));
+          signer
+            .sendTransaction({
+              to: "0x0000000000000000000000000000000000000000",
+              value: 0,
+              data: hexlify(response.data.code),
+            })
+            .then((tx) => {
+              tx.wait().then((receipt) => {
+                setLoading(false);
+              });
+            })
+            .finally(() => {
+              setLoading(false);
+            });
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
   }
 
   const changeHandler = (event: any) => {
-		setSelectedFile(event.target.files[0]);
-		setIsFilePicked(true);
-	};
+    setSelectedFile(event.target.files[0]);
+    setIsFilePicked(true);
+  };
+
+  const handleNameChange = useCallback((e: any) => {
+    setName(e.target.value);
+  }, []);
+
+  const handleArchChange = useCallback((e: any) => {
+    setArch(e.target.value);
+  }, []);
+
+  useEffect(() => {
+    console.log(name, arch, size);
+  }, [name, arch, size]);
 
   return (
     <Wrapper>
       <Header>
         <StatsBar>
           <H1>Your NPC</H1>
-          <TextInput placeholder="Name" />
-          <TextInput placeholder="Architecture" />
-          <FileInputButton onChange={changeHandler}/>
+          <TextInput placeholder="Name" onChange={handleNameChange} />
+          <TextInput placeholder="Architecture" onChange={handleArchChange} />
+          <FileInputButton onChange={changeHandler} />
           <TextBox>
             it is very important to blabalablablabalbal ash ados fiewf sasidna
             asidnwoidaskdae sdhd swa vomvl hvosdom alsc,aiocjsndvjsl
             ñalsmdañsldañ shdcsomsf Take over the world someday yes we will yes
             i dont have enough money for that brother
           </TextBox>
-          <DeployButton onClick={uploadFile} disabled={!isFilePicked}>Deploy</DeployButton>
+          <DeployButton onClick={uploadFile} disabled={!isFilePicked}>
+            {loading ? <Loader /> : "Deploy"}
+          </DeployButton>
         </StatsBar>
         <NpcImg src={npcSrc} alt="npc_img" />
         <StatsBar>
@@ -125,6 +166,6 @@ const Home = () =>  {
       </Header>
     </Wrapper>
   );
-}
+};
 
 export default Home;
