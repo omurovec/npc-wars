@@ -8,6 +8,7 @@ permissions:
 
 env:
   REACT_APP_GQL_ENDPOINT: "http://api.thegraph.com/subgraphs/name/omurovec/npc-wars"
+  REACT_APP_NPC_FACTORY: "0xDa88f0c284e6E2E93d55B985468aC77Bfff69017"
 
 jobs:
   build-and-deploy:

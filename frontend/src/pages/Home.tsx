@@ -1,15 +1,18 @@
 import styled, { keyframes } from "styled-components";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
+import axios from "axios";
+import { useAccount, useSigner } from "wagmi";
+import { getContractAddress, hexlify } from "ethers/lib/utils.js";
+import { Contract } from "ethers";
+
 import { H1 } from "../components/Text";
 import { TextInput, FileInputButton } from "../components/Input";
 import npcSrc from "../assets/npc.png";
 import TextBox from "../components/TextBox";
 import WalletButton from "../components/WalletButton";
 import { Button } from "../components/Button";
-import axios from "axios";
-import { useSigner } from "wagmi";
 import { Loader } from "../components/Loader";
-import { hexlify } from "ethers/lib/utils.js";
+import NpcFactoryAbi from "../abis/NPCFactory.json";
 
 const Wrapper = styled.div`
   flex: 1;
@@ -91,6 +94,7 @@ const Home = () => {
   const [loading, setLoading] = useState(false);
 
   const { data: signer } = useSigner();
+  const { address } = useAccount();
 
   function uploadFile() {
     var data = new FormData();
@@ -99,28 +103,37 @@ const Home = () => {
     setLoading(true);
     axios
       .post(`${process.env.REACT_APP_API_ENDPOINT}/getVerifierBytecode`, data)
-      .then(function (response) {
+      .then(async function (response) {
         setSize(response.data.onnx_length);
-        if (signer) {
-          console.log(hexlify(response.data.code));
-          signer
-            .sendTransaction({
-              to: "0x0000000000000000000000000000000000000000",
-              value: 0,
-              data: hexlify(response.data.code),
-            })
-            .then((tx) => {
-              tx.wait().then((receipt) => {
-                setLoading(false);
-              });
-            })
-            .finally(() => {
-              setLoading(false);
-            });
+        if (signer && address) {
+          const nonce = await signer.getTransactionCount();
+          const contractAddress = getContractAddress({
+            from: address,
+            nonce,
+          });
+          console.log("TX sent");
+          const tx = await signer.sendTransaction({
+            to: "0x0000000000000000000000000000000000000000",
+            value: 0,
+            data: hexlify(response.data.code),
+          });
+          tx.wait();
+          console.log("TX confirmed");
+          const NpcFactory = new Contract(
+            process.env.REACT_APP_NPC_FACTORY ?? "",
+            NpcFactoryAbi,
+            signer
+          );
+          console.log("send create NPC");
+
+          await NpcFactory.create(size, name, arch, "", contractAddress);
         }
       })
       .catch(function (error) {
         console.log(error);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }
 
@@ -136,10 +149,6 @@ const Home = () => {
   const handleArchChange = useCallback((e: any) => {
     setArch(e.target.value);
   }, []);
-
-  useEffect(() => {
-    console.log(name, arch, size);
-  }, [name, arch, size]);
 
   return (
     <Wrapper>
